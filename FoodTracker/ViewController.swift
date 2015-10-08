@@ -60,7 +60,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "toDetailVCSegue" {
             if sender != nil {
-                var detailVC = segue.destinationViewController as! DetailViewController
+                let detailVC = segue.destinationViewController as! DetailViewController
                 detailVC.usdaItem = sender as? USDAItem
             }
         }
@@ -103,7 +103,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell") as! UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier("Cell") as UITableViewCell!
         
         var foodName : String
         
@@ -178,20 +178,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         let searchString = self.searchController.searchBar.text
         let selectedScopeButtonIndex = self.searchController.searchBar.selectedScopeButtonIndex
-        self.filterContentForSearch(searchString, scope: selectedScopeButtonIndex)
+        self.filterContentForSearch(searchString!, scope: selectedScopeButtonIndex)
         self.tableView.reloadData()
     }
     
     func filterContentForSearch (searchText: String, scope: Int) {
         if scope == 0 {
             self.filteredSuggestedSearchFoods = self.suggestedSearchFoods.filter({ (food : String) -> Bool in
-                var foodMatch = food.rangeOfString(searchText)
+                let foodMatch = food.rangeOfString(searchText)
                 return foodMatch != nil
             })
         }
         else if scope == 2 {
             self.filteredFavoritedUSDAItems = self.favoritedUSDAItems.filter({ (item: USDAItem) -> Bool in
-                var stringMatch = item.name.rangeOfString(searchText)
+                let stringMatch = item.name.rangeOfString(searchText)
                 return stringMatch != nil
             })
         }
@@ -201,7 +201,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func searchBarSearchButtonClicked(searchBar: UISearchBar) {
         self.searchController.searchBar.selectedScopeButtonIndex = 1
-        makeRequest(searchBar.text)
+        makeRequest(searchBar.text!)
     }
     
     func searchBar(searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
@@ -224,11 +224,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         //        })
         //        task.resume()
         
-        var request = NSMutableURLRequest(URL: NSURL(string: "https://api.nutritionix.com/v1_1/search/")!)
+        let request = NSMutableURLRequest(URL: NSURL(string: "https://api.nutritionix.com/v1_1/search/")!)
         let session = NSURLSession.sharedSession()
         request.HTTPMethod = "POST"
         
-        var params = [
+        let params = [
             "appId" : kAppId,
             "appKey" : kAppKey,
             "fields" : ["item_name", "brand_name", "keywords", "usda_fields"],
@@ -237,38 +237,44 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             "filters": ["exists":["usda_fields": true]]]
         
         var error: NSError?
-        request.HTTPBody = NSJSONSerialization.dataWithJSONObject(params, options: nil, error: &error)
+        do {
+            request.HTTPBody = try NSJSONSerialization.dataWithJSONObject(params, options: [])
+        } catch let error1 as NSError {
+            error = error1
+            request.HTTPBody = nil
+        }
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         
-        var task = session.dataTaskWithRequest(request, completionHandler: { (data, response, err) -> Void in
+        let task = session.dataTaskWithRequest(request, completionHandler: { (data: NSData?, response: NSURLResponse?, error: NSError?) -> Void in
+      
+            let conversionError:NSError?
             
-            //            var stringData = NSString(data: data, encoding: NSUTF8StringEncoding)
-            //            println(stringData)
-            var conversionError: NSError?
-            var jsonDictionary = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.MutableLeaves, error: &conversionError) as? NSDictionary
-            println(jsonDictionary)
+                let jsonDictionary = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableLeaves) as? NSDictionary
             
-            if conversionError != nil {
-                println(conversionError!.localizedDescription)
-                let errorString = NSString(data: data, encoding: NSUTF8StringEncoding)
-                println("Error in Parsing \(errorString)")
-            }
-            else {
-                if jsonDictionary != nil {
-                    self.jsonResponse = jsonDictionary!
-                    
-                    self.apiSearchForFoods = DataController.jsonAsUSDAIdAndNameSearchResults(jsonDictionary!)
-                    dispatch_async(dispatch_get_main_queue(), { () -> Void in
-                        self.tableView.reloadData()
-                    })
+                if conversionError != nil {
+                    print(conversionError!.localizedDescription)
+                    let errorString = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                    print("Error in Parsing \(errorString)")
                 }
                 else {
-                    let errorString = NSString(data: data, encoding: NSUTF8StringEncoding)
-                    println("Error Could not Parse JSON \(errorString)")
+                    if jsonDictionary != nil {
+                        self.jsonResponse = jsonDictionary!
+                        
+                        self.apiSearchForFoods = DataController.jsonAsUSDAIdAndNameSearchResults(jsonDictionary!)
+                        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                            self.tableView.reloadData()
+                        })
+                    }
+                    else {
+                        let errorString = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                        print("Error Could not Parse JSON \(errorString)")
+                    }
                 }
-            }
-        })
+            
+                
+            })
+
         task.resume()
     }
     
@@ -278,7 +284,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let fetchRequest = NSFetchRequest(entityName: "USDAItem")
         let appDelegate = (UIApplication.sharedApplication().delegate as! AppDelegate)
         let managedObjectContext = appDelegate.managedObjectContext
-        self.favoritedUSDAItems = managedObjectContext?.executeFetchRequest(fetchRequest, error: nil) as! [USDAItem]
+        self.favoritedUSDAItems = (try! managedObjectContext?.executeFetchRequest(fetchRequest)) as! [USDAItem]
     }
     
     
@@ -286,7 +292,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func usdaItemDidComplete(notification : NSNotification) {
         
-        println("usdaItemDidComplete in ViewController")
+        print("usdaItemDidComplete in ViewController")
         requestFavoritedUSDAItems()
         let selectedScopeButtonIndex = self.searchController.searchBar.selectedScopeButtonIndex
         if selectedScopeButtonIndex == 2 {

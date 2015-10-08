@@ -54,21 +54,27 @@ class DataController {
                 if itemDictionary["_id"] != nil  && itemDictionary["_id"] as! String == idValue {
                     // confirm this dictionary hasn't already been saved if not save
                     let managedObjectContext = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
-                    var requestForUSDAItem = NSFetchRequest(entityName: "USDAItem")
+                    let requestForUSDAItem = NSFetchRequest(entityName: "USDAItem")
                     let itemDictionaryId = itemDictionary["_id"]! as! String
                     // NSPredicate helps to check if we have already saved it in the dictionary
                     let predicate = NSPredicate(format: "idValue == %@", itemDictionaryId)
                     requestForUSDAItem.predicate = predicate
                     var error: NSError?
-                    var items = managedObjectContext?.executeFetchRequest(requestForUSDAItem, error: &error)
+                    var items: [AnyObject]?
+                    do {
+                        items = try managedObjectContext?.executeFetchRequest(requestForUSDAItem)
+                    } catch let error1 as NSError {
+                        error = error1
+                        items = nil
+                    }
                     
                     // control flow
                     if items?.count != 0 {
                         // The item is already saved
-                        println("Already Saved")
+                        print("Already Saved")
                         return
                     } else {
-                        println("Lets save this to CoreData!")
+                        print("Lets save this to CoreData!")
                         //create entitiy
                     
                         let entityDescription = NSEntityDescription.entityForName("USDAItem", inManagedObjectContext: managedObjectContext!)

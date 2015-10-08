@@ -16,7 +16,7 @@ class DetailViewController: UIViewController {
     
     var usdaItem:USDAItem?
 
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         //added to init so it doesn't miss any messages! (detailVC may not load for a while)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "usdaItemDidComplete:", name: kUSDAItemCompleted, object: nil)
@@ -48,7 +48,7 @@ class DetailViewController: UIViewController {
     }
     
     func usdaItemDidComplete(notification: NSNotification) {
-        println("usdaItemDidComplete in detail view controller")
+        print("usdaItemDidComplete in detail view controller")
         usdaItem = notification.object as? USDAItem
         
         //wait for views to be loaded
@@ -66,15 +66,15 @@ class DetailViewController: UIViewController {
 
     func createAttributedString(usdaItem: USDAItem) -> NSAttributedString {
         
-        var itemAttributedString = NSMutableAttributedString()
+        let itemAttributedString = NSMutableAttributedString()
         
         //creating paragrah attributes to be used in the dictionary
-        var centeredParagraphStyle = NSMutableParagraphStyle()
+        let centeredParagraphStyle = NSMutableParagraphStyle()
         centeredParagraphStyle.alignment = NSTextAlignment.Center
         centeredParagraphStyle.lineSpacing = 10.0
         
         //setting up dictionary for attributedString properties/ titleString
-        var titleAttributesDictionary = [
+        let titleAttributesDictionary = [
         
             NSForegroundColorAttributeName: UIColor.blackColor(),
             NSFontAttributeName: UIFont.boldSystemFontOfSize(22.0),
@@ -85,22 +85,22 @@ class DetailViewController: UIViewController {
         itemAttributedString.appendAttributedString(titleString)
         
         // LEFTALIGNEDPARAGRAPH STYLE
-        var leftAllignedParagraphStyle = NSMutableParagraphStyle()
+        let leftAllignedParagraphStyle = NSMutableParagraphStyle()
         leftAllignedParagraphStyle.alignment = NSTextAlignment.Left
         leftAllignedParagraphStyle.lineSpacing = 20.0
         
         //dictionaries with key:value pairs
-        var styleFirstWordAttributesDictionary = [
+        let styleFirstWordAttributesDictionary = [
             NSForegroundColorAttributeName : UIColor.blackColor(),
             NSFontAttributeName : UIFont.boldSystemFontOfSize(18.0),
             NSParagraphStyleAttributeName : leftAllignedParagraphStyle]
         
-        var style1AttributesDictionary = [
+        let style1AttributesDictionary = [
             NSForegroundColorAttributeName : UIColor.darkGrayColor(),
             NSFontAttributeName : UIFont.systemFontOfSize(18.0),
             NSParagraphStyleAttributeName : leftAllignedParagraphStyle]
         
-        var style2AttributesDictionary = [
+        let style2AttributesDictionary = [
             NSForegroundColorAttributeName : UIColor.lightGrayColor(),
             NSFontAttributeName : UIFont.systemFontOfSize(18.0),
             NSParagraphStyleAttributeName : leftAllignedParagraphStyle]
@@ -165,37 +165,37 @@ class DetailViewController: UIViewController {
     
     func requestAuthorizationForHealthStore() {
         
-        let dataTypesToWrite = [
+        let dataTypesToWrite = Set(arrayLiteral:
             
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCalcium),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCarbohydrates),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCholesterol),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryEnergyConsumed),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryFatTotal),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryProtein),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietarySugar),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryVitaminC)
-        ]
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCalcium)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCarbohydrates)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCholesterol)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryEnergyConsumed)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryFatTotal)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryProtein)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietarySugar)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryVitaminC)!
+        )
         
-        let dataTypesToRead = [
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCalcium),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCarbohydrates),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCholesterol),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryEnergyConsumed),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryFatTotal),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryProtein),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietarySugar),
-            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryVitaminC)
-        ]
+        let dataTypesToRead = Set(arrayLiteral:
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCalcium)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCarbohydrates)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCholesterol)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryEnergyConsumed)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryFatTotal)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryProtein)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietarySugar)!,
+            HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryVitaminC)!
+        )
         
-        var store: HealthStoreConstant = HealthStoreConstant()
-        store.healthStore?.requestAuthorizationToShareTypes(NSSet(array: dataTypesToWrite) as Set<NSObject>, readTypes: NSSet(array: dataTypesToRead) as Set<NSObject>, completion: { (success, error) -> Void in
+        let store: HealthStoreConstant = HealthStoreConstant()
+        store.healthStore!.requestAuthorizationToShareTypes(NSSet(arrayLiteral: dataTypesToWrite) as? Set<HKSampleType>, readTypes: NSSet(arrayLiteral: dataTypesToRead) as! Set<HKSampleType>, completion: { (success, error) -> Void in
             
             if success {
-                println("User completed authorization request.")
+                print("User completed authorization request.")
             }
             else {
-                println("User canceled the request \(error)")
+                print("User canceled the request \(error)")
             }
         })
     }
@@ -213,40 +213,41 @@ class DetailViewController: UIViewController {
             ]
             
             let energyUnit = HKQuantity(unit: HKUnit.kilocalorieUnit(), doubleValue: (foodItem.energy as NSString).doubleValue)
-            let calories = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryEnergyConsumed), quantity: energyUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
+            let calories = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryEnergyConsumed)!, quantity: energyUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
             
             let calciumUnit = HKQuantity(unit: HKUnit.gramUnitWithMetricPrefix(HKMetricPrefix.Milli), doubleValue: (foodItem.calcium as NSString).doubleValue)
-            let calcium = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCalcium), quantity: calciumUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
+            let calcium = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCalcium)!, quantity: calciumUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
             
             let carbohydrateUnit = HKQuantity(unit: HKUnit.gramUnit(), doubleValue: (foodItem.carbohydrate as NSString).doubleValue)
-            let carbohydrates = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCarbohydrates), quantity: carbohydrateUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
+            let carbohydrates = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCarbohydrates)!, quantity: carbohydrateUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
             
             let cholesterolUnit = HKQuantity(unit: HKUnit.gramUnitWithMetricPrefix(HKMetricPrefix.Milli), doubleValue: (foodItem.cholesterol as NSString).doubleValue)
-            let cholesterol = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCholesterol), quantity: cholesterolUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
+            let cholesterol = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryCholesterol)!, quantity: cholesterolUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
             
             let fatTotalUnit = HKQuantity(unit: HKUnit.gramUnit(), doubleValue: (foodItem.fatTotal as NSString).doubleValue)
-            let fatTotal = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryFatTotal), quantity: fatTotalUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
+            let fatTotal = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryFatTotal)!, quantity: fatTotalUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
             
             let proteinUnit = HKQuantity(unit: HKUnit.gramUnit(), doubleValue: (foodItem.protein as NSString).doubleValue)
-            let protein = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryProtein), quantity: proteinUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
+            let protein = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryProtein)!, quantity: proteinUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
             
             let sugarUnit = HKQuantity(unit: HKUnit.gramUnit(), doubleValue: (foodItem.sugar as NSString).doubleValue)
-            let sugar = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietarySugar), quantity: sugarUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
+            let sugar = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietarySugar)!, quantity: sugarUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
             
             let vitaminCUnit = HKQuantity(unit: HKUnit.gramUnitWithMetricPrefix(HKMetricPrefix.Milli), doubleValue: (foodItem.vitaminC as NSString).doubleValue)
-            let vitaminC = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryVitaminC), quantity: vitaminCUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
+            let vitaminC = HKQuantitySample(type: HKQuantityType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryVitaminC)!, quantity: vitaminCUnit, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, metadata: foodMetaData)
             
             
-            let foodDataSet = NSSet(array: [calories, calcium, carbohydrates, cholesterol, fatTotal, protein, sugar, vitaminC])
-            let foodCorrelation = HKCorrelation(type: HKCorrelationType.correlationTypeForIdentifier(HKCorrelationTypeIdentifierFood), startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, objects: foodDataSet as Set<NSObject>, metadata : foodMetaData)
+            let foodDataSet = NSSet(arrayLiteral: [calories, calcium, carbohydrates, cholesterol, fatTotal, protein, sugar, vitaminC])
+            let foodCorrelation = HKCorrelation(type: HKCorrelationType.correlationTypeForIdentifier(HKCorrelationTypeIdentifierFood)!, startDate: timeFoodWasEntered, endDate: timeFoodWasEntered, objects: foodDataSet as! Set<HKSample>, metadata : foodMetaData)
             
-            var store:HealthStoreConstant = HealthStoreConstant()
+            let store:HealthStoreConstant = HealthStoreConstant()
+            
             store.healthStore?.saveObject(foodCorrelation, withCompletion: { (success, error) -> Void in
                 if success {
-                    println("saved successfully")
+                    print("saved successfully")
                 }
                 else {
-                    println("Error Occured: \(error)")
+                    print("Error Occured: \(error)")
                 }
             })
         }
@@ -254,8 +255,7 @@ class DetailViewController: UIViewController {
 
     
     
-    
-    
+ 
     
     
 // EOF
