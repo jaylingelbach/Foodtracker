@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:../FoodTracker/USDAItem.swift">
+   </FileRef>
+   <FileRef
       location = "self:FoodTracker.xcodeproj">
    </FileRef>
 </Workspace>

@@ -7,3 +7,10 @@
 //
 
 import Foundation
+import HealthKit
+
+class HealthStoreConstant {
+    
+    let healthStore: HKHealthStore? = HKHealthStore()
+    
+}
